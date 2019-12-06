@@ -1,3 +1,5 @@
+# --- Day 1: The Tyranny of the Rocket Equation ---
+
 sum = 0
 
 File.open("input.txt", "r").each do |line|

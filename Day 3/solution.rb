@@ -1,3 +1,5 @@
+# --- Day 3: Crossed Wires ---
+
 lines = File.read("input.txt").split("\n")
 
 def to_points(line)

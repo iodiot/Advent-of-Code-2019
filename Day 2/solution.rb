@@ -1,3 +1,5 @@
+# --- Day 2: 1202 Program Alarm ---
+
 intcode = File.read("input.txt").split(',').map(&:to_i)
 
 def run(intcode, noun, verb)
