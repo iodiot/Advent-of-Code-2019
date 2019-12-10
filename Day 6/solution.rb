@@ -4,7 +4,6 @@ orbits = {}
 
 File.open("input.txt", "r").each do |line|
 	right, left = line.strip.split(')')
-	#orbits[left] = [] unless orbits.key? left
 	orbits[left] = right
 end
 
@@ -23,7 +22,6 @@ orbits.keys.each do |planet|
 		seq << curr
 	end 
 
-	dp[planet] = [] unless dp.key? planet
 	dp[planet] = seq
 end
 
