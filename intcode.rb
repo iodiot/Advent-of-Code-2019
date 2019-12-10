@@ -8,6 +8,7 @@ class Intcode
 		@halted = false
 
 		@pos = 0
+		@rbase = 0
 	end
 
 	def send_to_input(x)
@@ -23,16 +24,35 @@ class Intcode
 		@paused
 	end
 
+	def get(pos, mode = 0)
+		raise "Negative address" if pos < 0
+
+		@code[pos] = 0 if @code[pos].nil?
+		addr = @code[pos]
+
+		case mode % 10
+		when 0
+			return get(addr, 1)
+		when 1
+			return addr
+		when 2
+			return get(addr + @rbase, 1)
+		end
+	end
+
+	def set(pos, val, mode = 0)
+		
+	end
+
 	def run
 		@paused = false
 
 		while true
-			case @code[@pos] % 100 
+			opcode, modes = @code[@pos] % 100, @code[@pos] / 100
+
+			case opcode
 			when 1, 2, 5, 6, 7, 8
-				opcode, modes = @code[@pos] % 100, @code[@pos] / 100
-				a, b, c = @code[(@pos + 1)..(@pos + 3)]
-				a = @code[a] if modes % 10 == 0
-				b = @code[b] if (modes / 10) % 10 == 0
+				a, b, c = get(@pos + 1, modes), get(@pos + 2, modes / 10), get(@pos + 3, 1) 
 
 				case opcode
 				when 1	# add
@@ -59,14 +79,18 @@ class Intcode
 					break
 				end
 
-				addr = @code[@pos + 1]
+				addr = get(@pos + 1, 1)
 				@code[addr] = @input.first
 				@input = @input.drop(1)
 				@pos += 2
 
 			when 4	# output
-				addr = @code[@pos + 1]
-				@output << @code[addr]
+				@output << get(@pos + 1, modes)
+
+				@pos += 2
+
+			when 9	# adjust relative base
+				@rbase += get(@pos + 1, modes)
 				@pos += 2
 
 			when 99	# halt
