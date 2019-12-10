@@ -41,7 +41,18 @@ class Intcode
 	end
 
 	def set(pos, val, mode = 0)
-		
+		raise "Negative address" if pos < 0
+
+		case mode % 10
+		when 0
+			addr = @code[pos]
+			@code[addr] = val
+		when 1
+			@code[pos] = val
+		when 2
+			addr = @code[pos]
+			@code[addr + @rbase] = val
+		end 
 	end
 
 	def run
@@ -52,24 +63,26 @@ class Intcode
 
 			case opcode
 			when 1, 2, 5, 6, 7, 8
-				a, b, c = get(@pos + 1, modes), get(@pos + 2, modes / 10), get(@pos + 3, 1) 
+				a, b = get(@pos + 1, modes), get(@pos + 2, modes / 10)
+
+				r = -1
 
 				case opcode
 				when 1	# add
-					@code[c] = a + b
+					set(@pos + 3, a + b, modes / 100)
 					@pos += 4
 				when 2	# mul
-					@code[c] = a * b
+					set(@pos + 3, a * b, modes / 100)
 					@pos += 4
 				when 5	# jump-if-true
 					@pos = a != 0 ? b : @pos + 3
 				when 6	# jump-if-false
 					@pos = a == 0 ? b : @pos + 3
 				when 7	# less-than
-					@code[c] = a < b ? 1 : 0
+					set(@pos + 3, a < b ? 1 : 0, modes / 100)
 					@pos += 4
 				when 8	# equals
-					@code[c] = a == b ? 1 : 0
+					set(@pos + 3, a == b ? 1 : 0, modes / 100)
 					@pos += 4
 				end
 
@@ -79,8 +92,8 @@ class Intcode
 					break
 				end
 
-				addr = get(@pos + 1, 1)
-				@code[addr] = @input.first
+				set(@pos + 1, @input.first, modes)
+
 				@input = @input.drop(1)
 				@pos += 2
 
