@@ -1,6 +1,7 @@
 # --- Day 11: Space Police ---
 
-require_relative "../intcode.rb"
+require 'ruby2d'
+require_relative '../intcode.rb'
 
 PART_1 = 1
 PART_2 = 2
@@ -37,7 +38,7 @@ def move_robot(dir, pos)
 	[x, y]
 end
 
-mode = PART_1
+mode = PART_2
 
 code = File.read("input.txt").split(',').map(&:to_i)
 
@@ -49,6 +50,8 @@ n = 0
 panels[pos] = WHITE if mode == PART_2
 
 brain = Intcode.new(code, [])
+
+steps = []
 
 while not brain.halted?
 	color = panels.key?(pos) ? panels[pos] : BLACK
@@ -63,11 +66,15 @@ while not brain.halted?
 
 	panels[pos] = color
 
+	steps << [pos, color]
+
 	dir = turn_robot(dir, turn)
 	pos = move_robot(dir, pos)
 end
 
-puts "part 1: #{n}" if mode == PART_1
+if mode == PART_1
+	puts "part 1: #{n}"
+end
 
 if mode == PART_2
 	w = panels.keys.map {|x| x[0]}.max
@@ -80,3 +87,29 @@ if mode == PART_2
 	puts "part 2: "
 	puts label
 end
+
+# visualize
+
+set title: "--- Day 11: Space Police ---"
+
+x = (get :width) / 2 - 150
+y = (get :height) / 2
+
+size = 10
+n = 0
+
+update do
+	if n < steps.count
+		pos, color = steps[n]
+
+		Square.new(
+		  x: pos[0] * size + x, y: pos[1] * size + y,
+		  size: size,
+		  color: color == WHITE ? "white" : "black"
+		)  	
+
+		n += 1
+	end
+end
+
+show
