@@ -24,6 +24,10 @@ class Intcode
 		@paused
 	end
 
+	def output
+		@output
+	end
+
 	def get(pos, mode = 0)
 		raise "Negative address" if pos < 0
 
@@ -65,8 +69,6 @@ class Intcode
 			when 1, 2, 5, 6, 7, 8
 				a, b = get(@pos + 1, modes), get(@pos + 2, modes / 10)
 
-				r = -1
-
 				case opcode
 				when 1	# add
 					set(@pos + 3, a + b, modes / 100)
@@ -99,7 +101,6 @@ class Intcode
 
 			when 4	# output
 				@output << get(@pos + 1, modes)
-
 				@pos += 2
 
 			when 9	# adjust relative base
