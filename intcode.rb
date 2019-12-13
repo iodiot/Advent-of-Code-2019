@@ -28,6 +28,10 @@ class Intcode
 		@output
 	end
 
+	def clear_output
+		@output = []
+	end
+
 	def get(pos, mode = 0)
 		raise "Negative address" if pos < 0
 
