@@ -11,6 +11,10 @@ class Intcode
 		@rbase = 0
 	end
 
+	def make_copy(x)
+		Intcode.new(@code.dup, [x])
+	end
+
 	def send_to_input(x)
 		@input << x
 		@input.flatten!
@@ -26,6 +30,10 @@ class Intcode
 
 	def output
 		@output
+	end
+
+	def input
+		@input
 	end
 
 	def clear_output
