@@ -1,5 +1,7 @@
 # --- Day 10: Monitoring Station ---
 
+require 'ruby2d'
+
 def gcd(a, b)
 	b == 0 ? a : gcd(b, a % b)
 end
@@ -47,45 +49,61 @@ end
 # 	[asteroids.map {|a| visible?(asteroids, o[0], o[1], a[0], a[1])}.count(true) - 1, o]
 # }.max
 
-
 o = [11, 13]
 
 puts "part 1: Best is 11,13 with 210 other asteroids detected."
 
 # part 2 ----------
 
-alfa = 0
-step = Math::PI / 360
-len = 29
+def cw(a, b)
+	a[0] * b[1] - a[1] * b[0] < 0
+end
+
+def mag(v)
+	Math.sqrt(v[0] * v[0] + v[1] * v[1])
+end
+
+def angle(a, b)
+	(a[0] * b[0] + a[1] * b[1]) / (mag(a) * mag(b))
+	#Math.acos(x)
+end
+
+p angle([0, 1], [0, -1])
+
+alfa = Math::PI
 x1 = o[0]
 y1 = o[1]
 px2, py2 = -1, -1
 
 n = 0
 
-y2 = 1
+cx, cy = Window.width / 2, Window.height / 2
 
-while true 
-	# x2 = (len * Math.sin(alfa) + x1).round
-	# y2 = (-len * Math.cos(alfa) + y1).round
+p cx
 
+line = Line.new(
+  x1: cx, y1: cy,
+  width: 3,
+  color: 'lime',
+)
 
+update do
 
-	# alfa += step
+	if n < 10000
+		x2, y2 = 250 * Math.sin(-alfa), 250 * Math.cos(alfa)
 
-	# next if x2 == px2 and y2 == py2
+		line.x2 = x2 + cx
+		line.y2 = y2 + cy
 
-	# px2, py2 = x2, y2
+		#vaporize(asteroids, x1, y1, x2, y2)
 
-		x2 = 11 + n
-		y2 = -13
+		#puts "#{x2},#{y2}"
 
-vaporize(asteroids, x1, y1, x2, y2)
+		n += 1
 
+		alfa += Math::PI / 360
+	end
 
-	#puts "#{x2},#{y2}"
-#
-	n += 1
-	break if n > 10
 end
 
+show
