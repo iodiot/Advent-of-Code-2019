@@ -1,11 +1,17 @@
+
 # --- Day 18: Many-Worlds Interpretation ---
+
+
+def closed_doors?(maze)
+	maze.join.each_char.select {|ch| ch != '.' and ch != '#' }.length > 0
+end
 
 def door?(ch)
 	ch >= 'A' and ch <= 'Z'
 end
 
 def key?(ch)
-	(ch >= 'a' and ch <= 'z') or (ch == '*')
+	ch >= 'a' and ch <= 'z'
 end
 
 def clone_arr(arr)
@@ -54,6 +60,7 @@ def build_nodes(amaze)
 end
 
 amaze = []
+x, y = -1, -1
 
 File.open("input.txt", "r").each_with_index do |line, i|
 	amaze << line.chomp
@@ -61,38 +68,52 @@ File.open("input.txt", "r").each_with_index do |line, i|
 
 	unless n.nil?
 		x, y = n, i
-		amaze[y][x] = '*'
+		amaze[y][x] = '.'
 	end
 end
+
+total_keys = amaze.join.each_char.select {|ch| key?(ch)}.count
+
+bot = {:pos => [x, y], :steps => 0, :maze => clone_arr(amaze), :keys => []}
+
+queue = [bot]
+
+min_steps = -1
 
 nodes = build_nodes(amaze)
 
-@dp = {}
+while not queue.empty? 
+	bot = queue.shift
+	
+	pos, maze, keys, steps = bot[:pos], bot[:maze], bot[:keys], bot[:steps]
+	x, y = pos
 
-all_keys = amaze.join.each_char.select {|ch| key?(ch)}.sort
-all_keys.each {|k| @dp[k] = 10005000}
-all_keys.delete('*')
+	what = maze[y][x]
 
-def dfs(nodes, all_keys, keys, steps, key)
-	return if steps > @dp[key]
+	if key?(what)
+		#p "#{what} #{steps}"
 
-	@dp[key] = steps
-
-	if keys.count == all_keys.count
-		p "#{keys.join(' ')} -> #{steps}"
-		return
+		unless keys.include? what
+			keys << what 
+			maze = clone_arr(amaze)
+		end
 	end
 
-	all_keys.select {|x| x != key}.sort {|a, b| nodes[[key, a].sort][:dist] <=> nodes[[key, b].sort][:dist] }.each do |other_key|
-		next if keys.include?(other_key)
-		z = [key, other_key].sort
-		next if (nodes[z][:doors].map {|x| x.downcase} - keys).length > 0
+	if keys.count == total_keys
+		min_steps = steps
+		break
+	end
 
-		new_keys = keys.clone
-		new_keys << other_key
+	maze[y][x] = '#'
 
-		dfs(nodes, all_keys, new_keys, steps + nodes[z][:dist], other_key)
+	[[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]].each do |point|
+		what = maze[point[1]][point[0]]
+
+		next if what == '#'
+		next if door?(what) and not keys.include?(what.downcase)
+
+		queue << {:pos => point, :steps => steps + 1, :maze => maze, :keys => keys.clone}
 	end
 end
 
-dfs(nodes, all_keys, [], 0, '*')
+p min_steps
