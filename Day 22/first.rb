@@ -41,4 +41,4 @@ techniques.each do |tech|
 	cards = new_cards
 end
 
-p cards.index 2019
+puts "part 1: #{cards.index 2019}
